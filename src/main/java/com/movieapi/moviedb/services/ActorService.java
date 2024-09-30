@@ -2,6 +2,7 @@ package com.movieapi.moviedb.services;
 
 import com.movieapi.moviedb.entities.Actor;
 import com.movieapi.moviedb.repositories.ActorRepository;
+import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -26,18 +27,21 @@ public class ActorService {
     }
 
     public Actor updateActor(Long id, Actor updatedActor) {
-        Optional<Actor> actorOptional = actorRepository.findById(id);
-        if (actorOptional.isPresent()) {
-            Actor actor = actorOptional.get();
-            actor.setName(updatedActor.getName());
-            actor.setBirthDate(updatedActor.getBirthDate());
-            actor.setMovies(updatedActor.getMovies());
-            return actorRepository.save(actor);
-        }
-        return null;
+        return actorRepository.findById(id)
+                .map(actor -> {
+                    actor.setName(updatedActor.getName());
+                    actor.setBirthDate(updatedActor.getBirthDate());
+                    actor.setMovies(updatedActor.getMovies());
+                    return actorRepository.save(actor);
+                        })
+                .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + id));
     }
 
     public void deleteActor(Long id) {
-        actorRepository.deleteById(id);
+        if (actorRepository.existsById(id)) {
+            actorRepository.deleteById(id);
+        } else {
+            throw new ResourceNotFoundException("Actor not found with id: " + id);
+        }
     }
 }
