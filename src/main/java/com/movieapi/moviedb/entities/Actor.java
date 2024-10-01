@@ -1,13 +1,16 @@
 package com.movieapi.moviedb.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
 public class Actor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String name;
     private String birthDate;
 
@@ -17,6 +20,7 @@ public class Actor {
             joinColumns = @JoinColumn(name = "actor_id"),
             inverseJoinColumns = @JoinColumn(name = "movie_id")
     )
+    @JsonBackReference
     private Set<Movie> movies;
 
     public Actor() {}
@@ -26,10 +30,10 @@ public class Actor {
         this.birthDate = birthDate;
         this.movies = movies;
     }
-    public long getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     public String getName() {
@@ -49,5 +53,15 @@ public class Actor {
     }
     public void setMovies(Set<Movie> movies) {
         this.movies = movies;
+    }
+
+    public void addMovie(Movie movie) {
+        this.movies.add(movie);
+        movie.getActors().add(this);
+    }
+
+    public void removeMovie(Movie movie) {
+        this.movies.remove(movie);
+        movie.getActors().remove(this);
     }
 }

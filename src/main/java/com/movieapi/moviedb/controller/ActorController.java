@@ -1,6 +1,6 @@
 package com.movieapi.moviedb.controller;
 
-import com.movieapi.moviedb.entities.Actor;
+import com.movieapi.moviedb.dto.ActorDTO;
 import com.movieapi.moviedb.services.ActorService;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,30 +18,32 @@ public class ActorController {
     private ActorService actorService;
 
     @PostMapping
-    public ResponseEntity<Actor> createActor(@RequestBody Actor actor) {
-        Actor createdActor = actorService.createActor(actor);
+    public ResponseEntity<ActorDTO> createActor(@RequestBody ActorDTO actorDTO) {
+        ActorDTO createdActor = actorService.createActor(actorDTO);
         return new ResponseEntity<>(createdActor, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Actor>> getAllActors() {
-        List<Actor> actors = actorService.getAllActors();
+    public ResponseEntity<List<ActorDTO>> getAllActors() {
+        List<ActorDTO> actors = actorService.getAllActors();
         return new ResponseEntity<>(actors, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Actor> getActorById(@PathVariable Long id) {
+    public ResponseEntity<ActorDTO> getActorById(@PathVariable Integer id) {
         return actorService.getActorById(id)
                 .map(actor -> new ResponseEntity<>(actor, HttpStatus.OK))
                 .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + id));
     }
+
     @PatchMapping("/{id}")
-    public ResponseEntity<Actor> updateActor(@PathVariable Long id, @RequestBody Actor updatedActor) {
-        Actor actor = actorService.updateActor(id, updatedActor);
-        return new ResponseEntity<>(actor, HttpStatus.OK);
+    public ResponseEntity<ActorDTO> updateActor(@PathVariable Integer id, @RequestBody ActorDTO updatedActorDTO) {
+        ActorDTO updatedActor = actorService.updateActor(id, updatedActorDTO);
+        return new ResponseEntity<>(updatedActor, HttpStatus.OK);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteActor(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteActor(@PathVariable Integer id) {
         actorService.deleteActor(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

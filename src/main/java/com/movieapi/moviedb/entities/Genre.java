@@ -1,5 +1,7 @@
 package com.movieapi.moviedb.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashSet;
 import java.util.Set;
 import jakarta.persistence.*;
 
@@ -7,11 +9,12 @@ import jakarta.persistence.*;
 public class Genre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String name;
 
-    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL)
-    private Set<Movie> movies;
+    @ManyToMany(mappedBy = "genres")
+    @JsonIgnore
+    private Set<Movie> movies = new HashSet<>();
 
     public Genre() {}
 
@@ -19,11 +22,12 @@ public class Genre {
         this.name = name;
     }
 
-    public long getId() {
+    // Getters and Setters
+    public Integer getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -41,5 +45,15 @@ public class Genre {
 
     public void setMovies(Set<Movie> movies) {
         this.movies = movies;
+    }
+
+    public void addMovie(Movie movie) {
+        this.movies.add(movie);
+        movie.getGenres().add(this);
+    }
+
+    public void removeMovie(Movie movie) {
+        this.movies.remove(movie);
+        movie.getGenres().remove(this);
     }
 }

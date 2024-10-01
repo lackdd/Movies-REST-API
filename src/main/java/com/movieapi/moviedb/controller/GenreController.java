@@ -1,6 +1,6 @@
 package com.movieapi.moviedb.controller;
 
-import com.movieapi.moviedb.entities.Genre;
+import com.movieapi.moviedb.dto.GenreDTO;
 import com.movieapi.moviedb.services.GenreService;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,30 +18,32 @@ public class GenreController {
     private GenreService genreService;
 
     @PostMapping
-    public ResponseEntity<Genre> createGenre(@RequestBody Genre genre) {
-        Genre createdGenre = genreService.createGenre(genre);
+    public ResponseEntity<GenreDTO> createGenre(@RequestBody GenreDTO genreDTO) {
+        GenreDTO createdGenre = genreService.createGenre(genreDTO);
         return new ResponseEntity<>(createdGenre, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Genre>> getAllGenres() {
-        List<Genre> genres = genreService.getAllGenres();
+    public ResponseEntity<List<GenreDTO>> getAllGenres() {
+        List<GenreDTO> genres = genreService.getAllGenres();
         return new ResponseEntity<>(genres, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Genre> getGenreById(@PathVariable Long id) {
-        Genre genre = genreService.getGenreById(id)
+    public ResponseEntity<GenreDTO> getGenreById(@PathVariable Integer id) {
+        return genreService.getGenreById(id)
+                .map(genre -> new ResponseEntity<>(genre, HttpStatus.OK))
                 .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + id));
-        return new ResponseEntity<>(genre, HttpStatus.OK);
     }
+
     @PatchMapping("/{id}")
-    public ResponseEntity<Genre> updateGenre(@PathVariable Long id, @RequestBody Genre updatedGenre) {
-        Genre updated = genreService.updateGenre(id, updatedGenre);
-        return new ResponseEntity<>(updated, HttpStatus.OK);
+    public ResponseEntity<GenreDTO> updateGenre(@PathVariable Integer id, @RequestBody GenreDTO updatedGenreDTO) {
+        GenreDTO updatedGenre = genreService.updateGenre(id, updatedGenreDTO);
+        return new ResponseEntity<>(updatedGenre, HttpStatus.OK);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteGenre(@PathVariable Integer id) {
         genreService.deleteGenre(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
