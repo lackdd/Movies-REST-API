@@ -5,7 +5,7 @@ import java.util.Set;
 public class GenreDTO {
     private Integer id;
     private String name;
-    private Set<MovieDTO> movies;
+    private Set<MovieSummaryDTO> movies;
 
     // Getters and Setters
     public Integer getId() {
@@ -24,11 +24,11 @@ public class GenreDTO {
         this.name = name;
     }
 
-    public Set<MovieDTO> getMovies() {
+    public Set<MovieSummaryDTO> getMovies() {  // Updated getter and setter to use MovieSummaryDTO
         return movies;
     }
 
-    public void setMovies(Set<MovieDTO> movies) {
+    public void setMovies(Set<MovieSummaryDTO> movies) {
         this.movies = movies;
     }
 }

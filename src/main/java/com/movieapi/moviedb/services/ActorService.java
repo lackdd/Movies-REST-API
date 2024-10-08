@@ -4,6 +4,7 @@ import com.movieapi.moviedb.entities.Actor;
 import com.movieapi.moviedb.entities.Movie;
 import com.movieapi.moviedb.dto.MovieDTO;
 import com.movieapi.moviedb.dto.ActorDTO;
+import com.movieapi.moviedb.dto.MovieSummaryDTO;
 import com.movieapi.moviedb.repositories.ActorRepository;
 import com.movieapi.moviedb.repositories.MovieRepository;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
@@ -80,10 +81,10 @@ public class ActorService {
         actorDTO.setName(actor.getName());
         actorDTO.setBirthDate(actor.getBirthDate());
 
-        Set<MovieDTO> movieDTOs = actor.getMovies().stream()
-                .map(this::convertToMovieDTO)
+        Set<MovieSummaryDTO> movieSummaries = actor.getMovies().stream()
+                .map(this::convertToMovieSummaryDTO)
                 .collect(Collectors.toSet());
-        actorDTO.setMovies(movieDTOs);
+        actorDTO.setMovies(movieSummaries);
 
         return actorDTO;
     }
@@ -112,5 +113,28 @@ public class ActorService {
         movieDTO.setReleaseYear(movie.getReleaseYear());
         movieDTO.setDuration(movie.getDuration());
         return movieDTO;
+    }
+
+    private MovieSummaryDTO convertToMovieSummaryDTO(Movie movie) {
+        MovieSummaryDTO summary = new MovieSummaryDTO();
+        summary.setId(movie.getId());
+        summary.setTitle(movie.getTitle());
+        summary.setReleaseYear(movie.getReleaseYear());
+        summary.setDuration(movie.getDuration());
+
+        Set<String> genreNames = movie.getGenres().stream()
+                .map(genre -> genre.getName())
+                .collect(Collectors.toSet());
+        summary.setGenreNames(genreNames);
+        System.out.println("Fetched Genres: " + movie.getGenres()); // Debug: Check if genres are being fetched
+
+
+        Set<String> actorNames = movie.getActors().stream()
+                .map(actor -> actor.getName())
+                .collect(Collectors.toSet());
+        summary.setActorNames(actorNames);
+        //System.out.println("Actor Names: " + actorNames); // Debug
+
+        return summary;
     }
 }

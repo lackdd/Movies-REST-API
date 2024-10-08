@@ -6,7 +6,7 @@ public class ActorDTO {
     private Integer id;
     private String name;
     private String birthDate;
-    private Set<MovieDTO> movies;
+    private Set<MovieSummaryDTO> movies;
 
     // Getters and Setters
     public Integer getId() {
@@ -33,11 +33,11 @@ public class ActorDTO {
         this.birthDate = birthDate;
     }
 
-    public Set<MovieDTO> getMovies() {
+    public Set<MovieSummaryDTO> getMovies() {
         return movies;
     }
 
-    public void setMovies(Set<MovieDTO> movies) {
+    public void setMovies(Set<MovieSummaryDTO> movies) {
         this.movies = movies;
     }
 }

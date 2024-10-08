@@ -1,9 +1,11 @@
 package com.movieapi.moviedb.services;
 
 import com.movieapi.moviedb.entities.Genre;
+import com.movieapi.moviedb.entities.Actor;
 import com.movieapi.moviedb.entities.Movie;
 import com.movieapi.moviedb.dto.GenreDTO;
 import com.movieapi.moviedb.dto.MovieDTO;
+import com.movieapi.moviedb.dto.MovieSummaryDTO;
 import com.movieapi.moviedb.repositories.MovieRepository;
 import com.movieapi.moviedb.repositories.GenreRepository;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
@@ -75,10 +77,33 @@ public class GenreService {
         GenreDTO genreDTO = new GenreDTO();
         genreDTO.setId(genre.getId());
         genreDTO.setName(genre.getName());
+        // Convert the movies under this genre to MovieSummaryDTO
         genreDTO.setMovies(genre.getMovies().stream()
-                .map(this::convertToMovieDTO)
+                .map(this::convertToMovieSummaryDTO)  // Make sure to call the MovieSummaryDTO converter
                 .collect(Collectors.toSet()));
         return genreDTO;
+    }
+
+    private MovieSummaryDTO convertToMovieSummaryDTO(Movie movie) {
+        MovieSummaryDTO movieSummaryDTO = new MovieSummaryDTO();
+        movieSummaryDTO.setId(movie.getId());
+        movieSummaryDTO.setTitle(movie.getTitle());
+        movieSummaryDTO.setReleaseYear(movie.getReleaseYear());
+        movieSummaryDTO.setDuration(movie.getDuration());
+
+        // Extract genre names
+        Set<String> genreNames = movie.getGenres().stream()
+                .map(Genre::getName)
+                .collect(Collectors.toSet());
+        movieSummaryDTO.setGenreNames(genreNames);
+
+        // Extract actor names
+        Set<String> actorNames = movie.getActors().stream()
+                .map(Actor::getName)
+                .collect(Collectors.toSet());
+        movieSummaryDTO.setActorNames(actorNames);
+
+        return movieSummaryDTO;
     }
 
     private Genre convertToEntity(GenreDTO genreDTO) {

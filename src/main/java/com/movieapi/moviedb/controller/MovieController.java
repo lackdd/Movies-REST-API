@@ -53,4 +53,10 @@ public class MovieController {
         MovieDTO updatedMovie = movieService.addActorToMovie(movieId, actorId);
         return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{movieId}/remove-actor/{actorId}")
+    public ResponseEntity<MovieDTO> removeActorFromMovie(@PathVariable Integer movieId, @PathVariable Integer actorId) {
+        MovieDTO updatedMovie = movieService.removeActorFromMovie(movieId, actorId);
+        return new ResponseEntity<>(updatedMovie, HttpStatus.NO_CONTENT);
+    }
 }

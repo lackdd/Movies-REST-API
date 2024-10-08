@@ -6,6 +6,9 @@ import com.movieapi.moviedb.entities.Genre;
 import com.movieapi.moviedb.dto.GenreDTO;
 import com.movieapi.moviedb.dto.ActorDTO;
 import com.movieapi.moviedb.dto.MovieDTO;
+import com.movieapi.moviedb.dto.ActorSummaryDTO;
+import com.movieapi.moviedb.dto.GenreSummaryDTO;
+import com.movieapi.moviedb.dto.MovieSummaryDTO;
 import com.movieapi.moviedb.repositories.ActorRepository;
 import com.movieapi.moviedb.repositories.MovieRepository;
 import com.movieapi.moviedb.repositories.GenreRepository;
@@ -99,6 +102,30 @@ public class MovieService {
         return convertToDTO(updatedMovie);
     }
 
+    public MovieDTO removeActorFromMovie(Integer movieId, Integer actorId) {
+        // Find the movie by ID or throw an exception if not found
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
+        System.out.println("Movie actors: " + movie.getActors());
+        // Find the actor by ID or throw an exception if not found
+        Actor actor = actorRepository.findById(actorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorId));
+
+        // Remove the actor if they are currently associated with the movie
+        if (movie.getActors().contains(actor)) {
+            movie.getActors().remove(actor);  // Remove the actor from the movie's actor list
+            actor.getMovies().remove(movie);  // Optionally remove the movie from the actor's movie list to maintain bidirectional consistency
+        } else {
+            throw new ResourceNotFoundException("Actor with id: " + actorId + " is not associated with movie id: " + movieId);
+        }
+
+        // Save the updated movie entity
+        Movie updatedMovie = movieRepository.save(movie);
+
+        // Convert the updated movie entity to a MovieDTO and return it
+        return convertToDTO(updatedMovie);
+    }
+
     // Conversion methods
     private MovieDTO convertToDTO(Movie movie) {
         MovieDTO movieDTO = new MovieDTO();
@@ -107,17 +134,43 @@ public class MovieService {
         movieDTO.setReleaseYear(movie.getReleaseYear());
         movieDTO.setDuration(movie.getDuration());
 
-        // Convert Genres to GenreDTOs
-        movieDTO.setGenres(movie.getGenres().stream()
-                .map(this::convertToGenreDTO)
-                .collect(Collectors.toSet()));
+        // Convert Genres to GenreSummaryDTOs
+        Set<GenreSummaryDTO> genreSummaries = movie.getGenres().stream()
+                .map(this::convertToGenreSummaryDTO)
+                .collect(Collectors.toSet());
+        movieDTO.setGenres(genreSummaries);
 
-        // Convert Actors to ActorDTOs
-        movieDTO.setActors(movie.getActors().stream()
-                .map(this::convertToActorDTO)
-                .collect(Collectors.toSet()));
+        // Convert Actors to ActorSummaryDTOs
+        Set<ActorSummaryDTO> actorSummaries = movie.getActors().stream()
+                .map(this::convertToActorSummaryDTO)
+                .collect(Collectors.toSet());
+        movieDTO.setActors(actorSummaries);
 
         return movieDTO;
+    }
+
+    private GenreSummaryDTO convertToGenreSummaryDTO(Genre genre) {
+        GenreSummaryDTO genreSummaryDTO = new GenreSummaryDTO();
+        genreSummaryDTO.setId(genre.getId());
+        genreSummaryDTO.setName(genre.getName());
+        // Populate movie names for the genre
+        Set<String> movieNames = genre.getMovies().stream()
+                .map(Movie::getTitle)  // Get movie titles
+                .collect(Collectors.toSet());
+        genreSummaryDTO.setMovieNames(movieNames);
+        return genreSummaryDTO;
+    }
+
+    private ActorSummaryDTO convertToActorSummaryDTO(Actor actor) {
+        ActorSummaryDTO actorSummaryDTO = new ActorSummaryDTO();
+        actorSummaryDTO.setId(actor.getId());
+        actorSummaryDTO.setName(actor.getName());
+        // Populate movie names for the actor
+        Set<String> movieNames = actor.getMovies().stream()
+                .map(Movie::getTitle)  // Get movie titles
+                .collect(Collectors.toSet());
+        actorSummaryDTO.setMovieNames(movieNames);
+        return actorSummaryDTO;
     }
 
     private Movie convertToEntity(MovieDTO movieDTO) {
@@ -126,21 +179,25 @@ public class MovieService {
         movie.setReleaseYear(movieDTO.getReleaseYear());
         movie.setDuration(movieDTO.getDuration());
 
-        if (movieDTO.getGenres() != null && !movieDTO.getGenres().isEmpty()) {
-            Set<Genre> genres = movieDTO.getGenres().stream()
-                    .map(genreDTO -> genreRepository.findById(genreDTO.getId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + genreDTO.getId())))
+        // Handle Genres from genreIds (deserialization)
+        Set<Genre> genres = new HashSet<>();
+        if (movieDTO.getGenreIds() != null && !movieDTO.getGenreIds().isEmpty()) {
+            genres = movieDTO.getGenreIds().stream()
+                    .map(genreId -> genreRepository.findById(genreId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + genreId)))
                     .collect(Collectors.toSet());
-            movie.setGenres(genres);
         }
+        movie.setGenres(genres);
 
-        if (movieDTO.getActors() != null && !movieDTO.getActors().isEmpty()) {
-            Set<Actor> actors = movieDTO.getActors().stream()
-                    .map(actorDTO -> actorRepository.findById(actorDTO.getId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorDTO.getId())))
+        // Handle Actors from actorIds (deserialization)
+        Set<Actor> actors = new HashSet<>();
+        if (movieDTO.getActorIds() != null && !movieDTO.getActorIds().isEmpty()) {
+            actors = movieDTO.getActorIds().stream()
+                    .map(actorId -> actorRepository.findById(actorId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorId)))
                     .collect(Collectors.toSet());
-            movie.setActors(actors);
         }
+        movie.setActors(actors);
 
         return movie;
     }
@@ -160,5 +217,27 @@ public class MovieService {
         actorDTO.setBirthDate(actor.getBirthDate());
         // You can add other details if needed
         return actorDTO;
+    }
+
+    private MovieSummaryDTO convertToMovieSummaryDTO(Movie movie) {
+        MovieSummaryDTO summaryDTO = new MovieSummaryDTO();
+        summaryDTO.setId(movie.getId());
+        summaryDTO.setTitle(movie.getTitle());
+        summaryDTO.setReleaseYear(movie.getReleaseYear());
+        summaryDTO.setDuration(movie.getDuration());
+
+        // Extract genre names
+        Set<String> genreNames = movie.getGenres().stream()
+                .map(Genre::getName)
+                .collect(Collectors.toSet());
+        summaryDTO.setGenreNames(genreNames);
+
+        // Extract actor names
+        Set<String> actorNames = movie.getActors().stream()
+                .map(Actor::getName)
+                .collect(Collectors.toSet());
+        summaryDTO.setActorNames(actorNames);
+
+        return summaryDTO;
     }
 }
