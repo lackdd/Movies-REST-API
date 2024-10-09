@@ -3,6 +3,8 @@ package com.movieapi.moviedb.controller;
 import com.movieapi.moviedb.entities.Movie;
 import com.movieapi.moviedb.services.MovieService;
 import com.movieapi.moviedb.dto.MovieDTO;
+import com.movieapi.moviedb.dto.ActorDTO;
+import jakarta.validation.Valid;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +21,26 @@ public class MovieController {
     private MovieService movieService;
 
     @PostMapping
-    public ResponseEntity<MovieDTO> createMovie(@RequestBody MovieDTO movieDTO) {
+    public ResponseEntity<MovieDTO> createMovie(@Valid @RequestBody MovieDTO movieDTO) {
         MovieDTO createdMovie = movieService.createMovie(movieDTO);
         return new ResponseEntity<>(createdMovie, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<MovieDTO>> getAllMovies() {
+    public ResponseEntity<List<MovieDTO>> getMovies(
+            @RequestParam(value = "actor", required = false) Integer actorId,
+            @RequestParam(value = "year", required = false) String year) {
+        // Check if year is provided
+        if (year != null) {
+            List<MovieDTO> movies = movieService.getMoviesByYear(year);
+            return new ResponseEntity<>(movies, HttpStatus.OK);
+        }
+        // Check if actorId is provided
+        if (actorId != null) {
+            List<MovieDTO> movies = movieService.getMoviesByActorId(actorId);
+            return new ResponseEntity<>(movies, HttpStatus.OK);
+        }
+        // If no filters are provided, return all movies
         List<MovieDTO> movies = movieService.getAllMovies();
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
@@ -36,6 +51,12 @@ public class MovieController {
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
+    @GetMapping("/{movieId}/actors")
+    public ResponseEntity<List<ActorDTO>> getActorsByMovieId(@PathVariable Integer movieId) {
+        List<ActorDTO> actors = movieService.getActorsByMovieId(movieId);
+        return new ResponseEntity<>(actors, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<MovieDTO> getMovieById(@PathVariable Integer id) {
         MovieDTO movieDTO = movieService.getMovieById(id);
@@ -43,7 +64,7 @@ public class MovieController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<MovieDTO> updateMovie(@PathVariable Integer id, @RequestBody MovieDTO updatedMovieDTO) {
+    public ResponseEntity<MovieDTO> updateMovie(@PathVariable Integer id, @Valid @RequestBody MovieDTO updatedMovieDTO) {
         MovieDTO updatedMovie = movieService.updateMovie(id, updatedMovieDTO);
         return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
     }

@@ -1,12 +1,24 @@
 package com.movieapi.moviedb.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MovieDTO {
     private Integer id;
+
+    @NotNull(message = "Title cannot be null")
+    @Size(min = 2, message = "Title must be at least 2 characters long")
     private String title;
+
+    @NotNull(message = "Release year cannot be null")
+    @Size(min = 4, max = 4, message = "Release year must be 4 digits")
     private String releaseYear;
+
+    @NotNull(message = "Duration cannot be null")
+    @Min(value = 1, message = "Duration must be at least 1 minute")
     private String duration;
     private Set<GenreSummaryDTO> genres;
     private Set<ActorSummaryDTO> actors;

@@ -3,6 +3,7 @@ package com.movieapi.moviedb.controller;
 import com.movieapi.moviedb.dto.GenreDTO;
 import com.movieapi.moviedb.dto.MovieDTO;
 import com.movieapi.moviedb.services.GenreService;
+import jakarta.validation.Valid;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class GenreController {
     private GenreService genreService;
 
     @PostMapping
-    public ResponseEntity<GenreDTO> createGenre(@RequestBody GenreDTO genreDTO) {
+    public ResponseEntity<GenreDTO> createGenre(@Valid @RequestBody GenreDTO genreDTO) {
         GenreDTO createdGenre = genreService.createGenre(genreDTO);
         return new ResponseEntity<>(createdGenre, HttpStatus.CREATED);
     }
@@ -38,7 +39,7 @@ public class GenreController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<GenreDTO> updateGenre(@PathVariable Integer id, @RequestBody GenreDTO updatedGenreDTO) {
+    public ResponseEntity<GenreDTO> updateGenre(@PathVariable Integer id, @Valid @RequestBody GenreDTO updatedGenreDTO) {
         GenreDTO updatedGenre = genreService.updateGenre(id, updatedGenreDTO);
         return new ResponseEntity<>(updatedGenre, HttpStatus.OK);
     }

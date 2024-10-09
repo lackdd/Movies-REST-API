@@ -5,6 +5,7 @@ import com.movieapi.moviedb.services.ActorService;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,7 @@ public class ActorController {
     private ActorService actorService;
 
     @PostMapping
-    public ResponseEntity<ActorDTO> createActor(@RequestBody ActorDTO actorDTO) {
+    public ResponseEntity<ActorDTO> createActor(@Valid @RequestBody ActorDTO actorDTO) {
         ActorDTO createdActor = actorService.createActor(actorDTO);
         return new ResponseEntity<>(createdActor, HttpStatus.CREATED);
     }
@@ -43,7 +44,7 @@ public class ActorController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ActorDTO> updateActor(@PathVariable Integer id, @RequestBody ActorDTO updatedActorDTO) {
+    public ResponseEntity<ActorDTO> updateActor(@PathVariable Integer id, @Valid @RequestBody ActorDTO updatedActorDTO) {
         ActorDTO updatedActor = actorService.updateActor(id, updatedActorDTO);
         return new ResponseEntity<>(updatedActor, HttpStatus.OK);
     }

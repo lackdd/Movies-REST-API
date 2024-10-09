@@ -173,6 +173,13 @@ public class MovieService {
         return actorSummaryDTO;
     }
 
+    public List<MovieDTO> getMoviesByYear(String year) {
+        List<Movie> movies = movieRepository.findByReleaseYear(year);
+        return movies.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     private Movie convertToEntity(MovieDTO movieDTO) {
         Movie movie = new Movie();
         movie.setTitle(movieDTO.getTitle());
@@ -213,6 +220,13 @@ public class MovieService {
         return genreDTO;
     }
 
+    public List<MovieDTO> getMoviesByActorId(Integer actorId) {
+        List<Movie> movies = movieRepository.findByActorId(actorId);
+        return movies.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     private ActorDTO convertToActorDTO(Actor actor) {
         ActorDTO actorDTO = new ActorDTO();
         actorDTO.setId(actor.getId());
@@ -220,6 +234,15 @@ public class MovieService {
         actorDTO.setBirthDate(actor.getBirthDate());
         // You can add other details if needed
         return actorDTO;
+    }
+
+    public List<ActorDTO> getActorsByMovieId(Integer movieId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
+
+        return movie.getActors().stream()
+                .map(this::convertToActorDTO)  // Use a method to convert Actor entities to ActorDTO
+                .collect(Collectors.toList());
     }
 
     private MovieSummaryDTO convertToMovieSummaryDTO(Movie movie) {
