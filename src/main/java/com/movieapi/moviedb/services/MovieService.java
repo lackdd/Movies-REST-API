@@ -80,12 +80,24 @@ public class MovieService {
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + id));
     }
 
-    public void deleteMovie(Integer id) {
-        if (movieRepository.existsById(id)) {
-            movieRepository.deleteById(id);
-        } else {
-            throw new ResourceNotFoundException("Movie not found with id: " + id);
+    public void deleteMovie(Integer id, boolean force) {
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + id));
+
+        if (!movie.getActors().isEmpty() || !movie.getGenres().isEmpty()) {
+            if (!force) {
+                throw new IllegalStateException("Cannot delete movie '" + movie.getTitle() + "' because it is associated with actors or genres.");
+            } else {
+                // Remove relationships before deletion
+                movie.getActors().forEach(actor -> actor.getMovies().remove(movie));
+                movie.getActors().clear();
+
+                movie.getGenres().forEach(genre -> genre.getMovies().remove(movie));
+                movie.getGenres().clear();
+            }
         }
+
+        movieRepository.delete(movie);
     }
 
     public MovieDTO addActorToMovie(Integer movieId, Integer actorId) {

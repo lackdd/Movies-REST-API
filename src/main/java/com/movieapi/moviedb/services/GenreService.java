@@ -64,12 +64,22 @@ public class GenreService {
     }
 
     // Delete a genre
-    public void deleteGenre(Integer id) {
-        if (genreRepository.existsById(id)) {
-            genreRepository.deleteById(id);
-        } else {
-            throw new ResourceNotFoundException("Genre not found with id: " + id);
+    public void deleteGenre(Integer id, boolean force) {
+        Genre genre = genreRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + id));
+
+        // Check if the genre is associated with any movies
+        if (!genre.getMovies().isEmpty()) {
+            if (!force) {
+                throw new IllegalStateException("Cannot delete genre '" + genre.getName() + "' because it has " + genre.getMovies().size() + " associated movies.");
+            } else {
+                // Remove relationships before deletion
+                genre.getMovies().forEach(movie -> movie.getGenres().remove(genre));
+                genre.getMovies().clear();
+            }
         }
+
+        genreRepository.delete(genre);
     }
 
     // Conversion methods between Genre and GenreDTO

@@ -66,12 +66,22 @@ public class ActorService {
     }
 
     // Delete an actor
-    public void deleteActor(Integer id) {
-        if (actorRepository.existsById(id)) {
-            actorRepository.deleteById(id);
-        } else {
-            throw new ResourceNotFoundException("Actor not found with id: " + id);
+    public void deleteActor(Integer id, boolean force) {
+        Actor actor = actorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + id));
+
+        // Check if the actor is associated with any movies
+        if (!actor.getMovies().isEmpty()) {
+            if (!force) {
+                throw new IllegalStateException("Cannot delete actor '" + actor.getName() + "' because they are associated with " + actor.getMovies().size() + " movies.");
+            } else {
+                // Remove relationships before deletion
+                actor.getMovies().forEach(movie -> movie.getActors().remove(actor));
+                actor.getMovies().clear();
+            }
         }
+
+        actorRepository.delete(actor);
     }
 
     public List<ActorDTO> getActorsByName(String name) {

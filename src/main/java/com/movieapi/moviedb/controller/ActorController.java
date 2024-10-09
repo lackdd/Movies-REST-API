@@ -50,8 +50,8 @@ public class ActorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteActor(@PathVariable Integer id) {
-        actorService.deleteActor(id);
+    public ResponseEntity<Void> deleteActor(@PathVariable Integer id, @RequestParam(defaultValue = "false") boolean force) {
+        actorService.deleteActor(id, force);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

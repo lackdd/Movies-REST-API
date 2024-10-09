@@ -69,9 +69,10 @@ public class MovieController {
         return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
     }
 
+    // Updated method to handle force delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Integer id) {
-        movieService.deleteMovie(id);
+    public ResponseEntity<Void> deleteMovie(@PathVariable Integer id, @RequestParam(defaultValue = "false") boolean force) {
+        movieService.deleteMovie(id, force);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
