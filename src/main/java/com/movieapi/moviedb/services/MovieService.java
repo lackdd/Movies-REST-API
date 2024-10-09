@@ -196,6 +196,9 @@ public class MovieService {
                     .map(actorId -> actorRepository.findById(actorId)
                             .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorId)))
                     .collect(Collectors.toSet());
+            for (Actor actor : actors) {
+                actor.getMovies().add(movie);  // Add movie to the actor's list of movies
+            }
         }
         movie.setActors(actors);
 
@@ -239,5 +242,12 @@ public class MovieService {
         summaryDTO.setActorNames(actorNames);
 
         return summaryDTO;
+    }
+
+    public List<MovieDTO> getMoviesByGenre(Integer genreId) {
+        List<Movie> movies = movieRepository.findByGenreId(genreId);
+        return movies.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 }

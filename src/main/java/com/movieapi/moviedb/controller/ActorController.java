@@ -29,6 +29,12 @@ public class ActorController {
         return new ResponseEntity<>(actors, HttpStatus.OK);
     }
 
+    @GetMapping(params = "name")
+    public ResponseEntity<List<ActorDTO>> getActorsByName(@RequestParam("name") String name) {
+        List<ActorDTO> actors = actorService.getActorsByName(name);
+        return new ResponseEntity<>(actors, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ActorDTO> getActorById(@PathVariable Integer id) {
         return actorService.getActorById(id)

@@ -2,6 +2,7 @@ package com.movieapi.moviedb.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.Set;
+import java.util.HashSet;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -21,7 +22,7 @@ public class Actor {
             inverseJoinColumns = @JoinColumn(name = "movie_id")
     )
     @JsonBackReference
-    private Set<Movie> movies;
+    private Set<Movie> movies = new HashSet<>();
 
     public Actor() {}
 

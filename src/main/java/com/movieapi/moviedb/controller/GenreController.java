@@ -1,6 +1,7 @@
 package com.movieapi.moviedb.controller;
 
 import com.movieapi.moviedb.dto.GenreDTO;
+import com.movieapi.moviedb.dto.MovieDTO;
 import com.movieapi.moviedb.services.GenreService;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

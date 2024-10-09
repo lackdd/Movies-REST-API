@@ -30,6 +30,12 @@ public class MovieController {
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
+    @GetMapping(params = "genre")
+    public ResponseEntity<List<MovieDTO>> getMoviesByGenre(@RequestParam("genre") Integer genreId) {
+        List<MovieDTO> movies = movieService.getMoviesByGenre(genreId);
+        return new ResponseEntity<>(movies, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<MovieDTO> getMovieById(@PathVariable Integer id) {
         MovieDTO movieDTO = movieService.getMovieById(id);

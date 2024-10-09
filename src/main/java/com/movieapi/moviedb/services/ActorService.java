@@ -74,6 +74,13 @@ public class ActorService {
         }
     }
 
+    public List<ActorDTO> getActorsByName(String name) {
+        List<Actor> actors = actorRepository.findByNameContainingIgnoreCase(name);
+        return actors.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     // Conversion methods between Actor and ActorDTO
     private ActorDTO convertToDTO(Actor actor) {
         ActorDTO actorDTO = new ActorDTO();
