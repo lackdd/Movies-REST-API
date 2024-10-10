@@ -1,7 +1,6 @@
 package com.movieapi.moviedb.controller;
 
 import com.movieapi.moviedb.dto.GenreDTO;
-import com.movieapi.moviedb.dto.MovieDTO;
 import com.movieapi.moviedb.services.GenreService;
 import jakarta.validation.Valid;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/genres")

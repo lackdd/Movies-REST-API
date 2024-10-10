@@ -3,12 +3,10 @@ package com.movieapi.moviedb.services;
 import com.movieapi.moviedb.entities.Movie;
 import com.movieapi.moviedb.entities.Actor;
 import com.movieapi.moviedb.entities.Genre;
-import com.movieapi.moviedb.dto.GenreDTO;
 import com.movieapi.moviedb.dto.ActorDTO;
 import com.movieapi.moviedb.dto.MovieDTO;
 import com.movieapi.moviedb.dto.ActorSummaryDTO;
 import com.movieapi.moviedb.dto.GenreSummaryDTO;
-import com.movieapi.moviedb.dto.MovieSummaryDTO;
 import com.movieapi.moviedb.repositories.ActorRepository;
 import com.movieapi.moviedb.repositories.MovieRepository;
 import com.movieapi.moviedb.repositories.GenreRepository;
@@ -21,7 +19,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MovieService {
@@ -116,11 +113,9 @@ public class MovieService {
     }
 
     public MovieDTO removeActorFromMovie(Integer movieId, Integer actorId) {
-        // Find the movie by ID or throw an exception if not found
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
         System.out.println("Movie actors: " + movie.getActors());
-        // Find the actor by ID or throw an exception if not found
         Actor actor = actorRepository.findById(actorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorId));
 
@@ -132,19 +127,16 @@ public class MovieService {
             throw new ResourceNotFoundException("Actor with id: " + actorId + " is not associated with movie id: " + movieId);
         }
 
-        // Save the updated movie entity
         Movie updatedMovie = movieRepository.save(movie);
 
-        // Convert the updated movie entity to a MovieDTO and return it
         return convertToDTO(updatedMovie);
     }
 
     public Page<MovieDTO> searchMoviesByTitle(String title, Pageable pageable) {
         Page<Movie> moviesPage = movieRepository.findByTitleContainingIgnoreCase(title, pageable);
-        return moviesPage.map(this::convertToDTO);  // Assuming you have a convertToDTO method
+        return moviesPage.map(this::convertToDTO);
     }
 
-    // Conversion methods
     private MovieDTO convertToDTO(Movie movie) {
         MovieDTO movieDTO = new MovieDTO();
         movieDTO.setId(movie.getId());
@@ -152,13 +144,11 @@ public class MovieService {
         movieDTO.setReleaseYear(movie.getReleaseYear());
         movieDTO.setDuration(movie.getDuration());
 
-        // Convert Genres to GenreSummaryDTOs
         Set<GenreSummaryDTO> genreSummaries = movie.getGenres().stream()
                 .map(this::convertToGenreSummaryDTO)
                 .collect(Collectors.toSet());
         movieDTO.setGenres(genreSummaries);
 
-        // Convert Actors to ActorSummaryDTOs
         Set<ActorSummaryDTO> actorSummaries = movie.getActors().stream()
                 .map(this::convertToActorSummaryDTO)
                 .collect(Collectors.toSet());
@@ -171,9 +161,9 @@ public class MovieService {
         GenreSummaryDTO genreSummaryDTO = new GenreSummaryDTO();
         genreSummaryDTO.setId(genre.getId());
         genreSummaryDTO.setName(genre.getName());
-        // Populate movie names for the genre
+
         Set<String> movieNames = genre.getMovies().stream()
-                .map(Movie::getTitle)  // Get movie titles
+                .map(Movie::getTitle)
                 .collect(Collectors.toSet());
         genreSummaryDTO.setMovieNames(movieNames);
         return genreSummaryDTO;
@@ -183,9 +173,9 @@ public class MovieService {
         ActorSummaryDTO actorSummaryDTO = new ActorSummaryDTO();
         actorSummaryDTO.setId(actor.getId());
         actorSummaryDTO.setName(actor.getName());
-        // Populate movie names for the actor
+
         Set<String> movieNames = actor.getMovies().stream()
-                .map(Movie::getTitle)  // Get movie titles
+                .map(Movie::getTitle)
                 .collect(Collectors.toSet());
         actorSummaryDTO.setMovieNames(movieNames);
         return actorSummaryDTO;
@@ -220,20 +210,12 @@ public class MovieService {
                             .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorId)))
                     .collect(Collectors.toSet());
             for (Actor actor : actors) {
-                actor.getMovies().add(movie);  // Add movie to the actor's list of movies
+                actor.getMovies().add(movie);
             }
         }
         movie.setActors(actors);
 
         return movie;
-    }
-
-    private GenreDTO convertToGenreDTO(Genre genre) {
-        GenreDTO genreDTO = new GenreDTO();
-        genreDTO.setId(genre.getId());
-        genreDTO.setName(genre.getName());
-        // You can add other details if needed
-        return genreDTO;
     }
 
     public Page<MovieDTO> getMoviesByActorId(Integer actorId, Pageable pageable) {
@@ -246,7 +228,6 @@ public class MovieService {
         actorDTO.setId(actor.getId());
         actorDTO.setName(actor.getName());
         actorDTO.setBirthDate(actor.getBirthDate());
-        // You can add other details if needed
         return actorDTO;
     }
 
@@ -255,28 +236,8 @@ public class MovieService {
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
 
         return movie.getActors().stream()
-                .map(this::convertToActorDTO)  // Use a method to convert Actor entities to ActorDTO
+                .map(this::convertToActorDTO)
                 .collect(Collectors.toList());
-    }
-
-    private MovieSummaryDTO convertToMovieSummaryDTO(Movie movie) {
-        MovieSummaryDTO summaryDTO = new MovieSummaryDTO();
-        summaryDTO.setId(movie.getId());
-        summaryDTO.setTitle(movie.getTitle());
-        summaryDTO.setReleaseYear(movie.getReleaseYear());
-        summaryDTO.setDuration(movie.getDuration());
-
-        Set<String> genreNames = movie.getGenres().stream()
-                .map(Genre::getName)
-                .collect(Collectors.toSet());
-        summaryDTO.setGenreNames(genreNames);
-
-        Set<String> actorNames = movie.getActors().stream()
-                .map(Actor::getName)
-                .collect(Collectors.toSet());
-        summaryDTO.setActorNames(actorNames);
-
-        return summaryDTO;
     }
 
     public Page<MovieDTO> getMoviesByGenre(Integer genreId, Pageable pageable) {

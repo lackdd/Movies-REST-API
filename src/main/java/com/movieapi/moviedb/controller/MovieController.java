@@ -1,11 +1,9 @@
 package com.movieapi.moviedb.controller;
 
-import com.movieapi.moviedb.entities.Movie;
 import com.movieapi.moviedb.services.MovieService;
 import com.movieapi.moviedb.dto.MovieDTO;
 import com.movieapi.moviedb.dto.ActorDTO;
 import jakarta.validation.Valid;
-import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -92,7 +90,6 @@ public class MovieController {
         return new ResponseEntity<>(updatedMovie, HttpStatus.OK);
     }
 
-    // Updated method to handle force delete
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable Integer id, @RequestParam(defaultValue = "false") boolean force) {
         movieService.deleteMovie(id, force);

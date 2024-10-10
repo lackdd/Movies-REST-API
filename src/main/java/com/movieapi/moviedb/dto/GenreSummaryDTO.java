@@ -5,9 +5,8 @@ import java.util.Set;
 public class GenreSummaryDTO {
     private Integer id;
     private String name;
-    private Set<String> movieNames;  // Just movie names instead of full MovieDTO
+    private Set<String> movieNames;
 
-    // Constructors
     public GenreSummaryDTO() {}
 
     public GenreSummaryDTO(Integer id, String name) {
@@ -15,7 +14,6 @@ public class GenreSummaryDTO {
         this.name = name;
     }
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }

@@ -38,7 +38,6 @@ public class Movie {
         this.actors = new HashSet<>();
     }
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }

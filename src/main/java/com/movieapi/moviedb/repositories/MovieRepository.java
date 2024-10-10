@@ -8,11 +8,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Integer> {
-    // Modified methods to support pagination
+
     @Query("SELECT m FROM Movie m JOIN m.genres g WHERE g.id = :genreId")
     Page<Movie> findByGenreId(@Param("genreId") Integer genreId, Pageable pageable);
 

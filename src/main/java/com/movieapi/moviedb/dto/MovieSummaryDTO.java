@@ -10,7 +10,6 @@ public class MovieSummaryDTO {
     private Set<String> genreNames;
     private Set<String> actorNames;
 
-    // Constructors, getters, and setters
 
     public MovieSummaryDTO() {
     }

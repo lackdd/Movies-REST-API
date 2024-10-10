@@ -22,7 +22,6 @@ public class Genre {
         this.name = name;
     }
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }

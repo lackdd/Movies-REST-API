@@ -17,7 +17,6 @@ public class ActorDTO {
     private String birthDate;
     private Set<MovieSummaryDTO> movies;
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }

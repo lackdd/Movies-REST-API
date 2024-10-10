@@ -29,7 +29,6 @@ public class MovieDTO {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Integer> actorIds;
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }

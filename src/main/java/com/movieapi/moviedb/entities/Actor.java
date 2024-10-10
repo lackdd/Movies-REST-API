@@ -3,8 +3,6 @@ package com.movieapi.moviedb.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.Set;
 import java.util.HashSet;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity

@@ -2,7 +2,6 @@ package com.movieapi.moviedb.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.Valid;
 import java.util.Set;
 
 public class GenreDTO {
@@ -16,7 +15,6 @@ public class GenreDTO {
     @Size(min = 1, message = "There must be at least one movie in the genre")
     private Set<MovieSummaryDTO> movies;
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }
@@ -33,7 +31,7 @@ public class GenreDTO {
         this.name = name;
     }
 
-    public Set<MovieSummaryDTO> getMovies() {  // Updated getter and setter to use MovieSummaryDTO
+    public Set<MovieSummaryDTO> getMovies() {
         return movies;
     }
 
