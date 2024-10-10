@@ -11,6 +11,8 @@ import com.movieapi.moviedb.repositories.GenreRepository;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,10 +35,9 @@ public class GenreService {
     }
 
     // Get all genres
-    public List<GenreDTO> getAllGenres() {
-        return genreRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<GenreDTO> getAllGenres(Pageable pageable) {
+        Page<Genre> genresPage = genreRepository.findAll(pageable);
+        return genresPage.map(this::convertToDTO);
     }
 
     // Get genre by ID

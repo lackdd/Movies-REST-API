@@ -15,6 +15,8 @@ import com.movieapi.moviedb.repositories.GenreRepository;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.HashSet;
@@ -37,10 +39,9 @@ public class MovieService {
         return convertToDTO(savedMovie);
     }
 
-    public List<MovieDTO> getAllMovies() {
-        return movieRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<MovieDTO> getAllMovies(Pageable pageable) {
+        Page<Movie> moviesPage = movieRepository.findAll(pageable);
+        return moviesPage.map(this::convertToDTO);
     }
 
     public MovieDTO getMovieById(Integer id) {
@@ -138,6 +139,11 @@ public class MovieService {
         return convertToDTO(updatedMovie);
     }
 
+    public Page<MovieDTO> searchMoviesByTitle(String title, Pageable pageable) {
+        Page<Movie> moviesPage = movieRepository.findByTitleContainingIgnoreCase(title, pageable);
+        return moviesPage.map(this::convertToDTO);  // Assuming you have a convertToDTO method
+    }
+
     // Conversion methods
     private MovieDTO convertToDTO(Movie movie) {
         MovieDTO movieDTO = new MovieDTO();
@@ -185,11 +191,9 @@ public class MovieService {
         return actorSummaryDTO;
     }
 
-    public List<MovieDTO> getMoviesByYear(String year) {
-        List<Movie> movies = movieRepository.findByReleaseYear(year);
-        return movies.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<MovieDTO> getMoviesByYear(String year, Pageable pageable) {
+        Page<Movie> moviesPage = movieRepository.findByReleaseYear(year, pageable);
+        return moviesPage.map(this::convertToDTO);
     }
 
     private Movie convertToEntity(MovieDTO movieDTO) {
@@ -232,11 +236,9 @@ public class MovieService {
         return genreDTO;
     }
 
-    public List<MovieDTO> getMoviesByActorId(Integer actorId) {
-        List<Movie> movies = movieRepository.findByActorId(actorId);
-        return movies.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<MovieDTO> getMoviesByActorId(Integer actorId, Pageable pageable) {
+        Page<Movie> moviesPage = movieRepository.findByActorId(actorId, pageable);
+        return moviesPage.map(this::convertToDTO);
     }
 
     private ActorDTO convertToActorDTO(Actor actor) {
@@ -264,13 +266,11 @@ public class MovieService {
         summaryDTO.setReleaseYear(movie.getReleaseYear());
         summaryDTO.setDuration(movie.getDuration());
 
-        // Extract genre names
         Set<String> genreNames = movie.getGenres().stream()
                 .map(Genre::getName)
                 .collect(Collectors.toSet());
         summaryDTO.setGenreNames(genreNames);
 
-        // Extract actor names
         Set<String> actorNames = movie.getActors().stream()
                 .map(Actor::getName)
                 .collect(Collectors.toSet());
@@ -279,10 +279,8 @@ public class MovieService {
         return summaryDTO;
     }
 
-    public List<MovieDTO> getMoviesByGenre(Integer genreId) {
-        List<Movie> movies = movieRepository.findByGenreId(genreId);
-        return movies.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<MovieDTO> getMoviesByGenre(Integer genreId, Pageable pageable) {
+        Page<Movie> moviesPage = movieRepository.findByGenreId(genreId, pageable);
+        return moviesPage.map(this::convertToDTO);
     }
 }

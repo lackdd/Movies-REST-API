@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -25,14 +28,19 @@ public class ActorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ActorDTO>> getAllActors() {
-        List<ActorDTO> actors = actorService.getAllActors();
-        return new ResponseEntity<>(actors, HttpStatus.OK);
-    }
+    public ResponseEntity<Page<ActorDTO>> getAllActors(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
 
-    @GetMapping(params = "name")
-    public ResponseEntity<List<ActorDTO>> getActorsByName(@RequestParam("name") String name) {
-        List<ActorDTO> actors = actorService.getActorsByName(name);
+        Pageable pageable = PageRequest.of(page, size);
+
+        if (name != null) {
+            Page<ActorDTO> actors = actorService.getActorsByName(name, pageable);
+            return new ResponseEntity<>(actors, HttpStatus.OK);
+        }
+
+        Page<ActorDTO> actors = actorService.getAllActors(pageable);
         return new ResponseEntity<>(actors, HttpStatus.OK);
     }
 

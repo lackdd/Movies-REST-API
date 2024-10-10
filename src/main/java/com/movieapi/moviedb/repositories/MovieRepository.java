@@ -5,17 +5,24 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Integer> {
+    // Modified methods to support pagination
     @Query("SELECT m FROM Movie m JOIN m.genres g WHERE g.id = :genreId")
-    List<Movie> findByGenreId(@Param("genreId") Integer genreId);
+    Page<Movie> findByGenreId(@Param("genreId") Integer genreId, Pageable pageable);
 
     @Query("SELECT m FROM Movie m JOIN m.actors a WHERE a.id = :actorId")
-    List<Movie> findByActorId(@Param("actorId") Integer actorId);
+    Page<Movie> findByActorId(@Param("actorId") Integer actorId, Pageable pageable);
 
     @Query("SELECT m FROM Movie m WHERE m.releaseYear = :year")
-    List<Movie> findByReleaseYear(@Param("year") String year);
+    Page<Movie> findByReleaseYear(@Param("year") String year, Pageable pageable);
+
+    Page<Movie> findAll(Pageable pageable);
+
+    Page<Movie> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 }

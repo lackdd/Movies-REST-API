@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -27,27 +30,47 @@ public class MovieController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MovieDTO>> getMovies(
+    public ResponseEntity<Page<MovieDTO>> getMovies(
             @RequestParam(value = "actor", required = false) Integer actorId,
-            @RequestParam(value = "year", required = false) String year) {
-        // Check if year is provided
+            @RequestParam(value = "year", required = false) String year,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
         if (year != null) {
-            List<MovieDTO> movies = movieService.getMoviesByYear(year);
+            Page<MovieDTO> movies = movieService.getMoviesByYear(year, pageable);
             return new ResponseEntity<>(movies, HttpStatus.OK);
         }
-        // Check if actorId is provided
+
         if (actorId != null) {
-            List<MovieDTO> movies = movieService.getMoviesByActorId(actorId);
+            Page<MovieDTO> movies = movieService.getMoviesByActorId(actorId, pageable);
             return new ResponseEntity<>(movies, HttpStatus.OK);
         }
-        // If no filters are provided, return all movies
-        List<MovieDTO> movies = movieService.getAllMovies();
+
+        Page<MovieDTO> movies = movieService.getAllMovies(pageable);
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
     @GetMapping(params = "genre")
-    public ResponseEntity<List<MovieDTO>> getMoviesByGenre(@RequestParam("genre") Integer genreId) {
-        List<MovieDTO> movies = movieService.getMoviesByGenre(genreId);
+    public ResponseEntity<Page<MovieDTO>> getMoviesByGenre(
+            @RequestParam("genre") Integer genreId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MovieDTO> movies = movieService.getMoviesByGenre(genreId, pageable);
+        return new ResponseEntity<>(movies, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<MovieDTO>> searchMoviesByTitle(
+            @RequestParam("title") String title,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MovieDTO> movies = movieService.searchMoviesByTitle(title, pageable);
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 

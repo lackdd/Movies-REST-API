@@ -10,6 +10,8 @@ import com.movieapi.moviedb.repositories.MovieRepository;
 import com.movieapi.moviedb.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,10 +34,9 @@ public class ActorService {
     }
 
     // Get all actors
-    public List<ActorDTO> getAllActors() {
-        return actorRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<ActorDTO> getAllActors(Pageable pageable) {
+        Page<Actor> actorsPage = actorRepository.findAll(pageable);
+        return actorsPage.map(this::convertToDTO);
     }
 
     // Get actor by ID
@@ -84,11 +85,9 @@ public class ActorService {
         actorRepository.delete(actor);
     }
 
-    public List<ActorDTO> getActorsByName(String name) {
-        List<Actor> actors = actorRepository.findByNameContainingIgnoreCase(name);
-        return actors.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<ActorDTO> getActorsByName(String name, Pageable pageable) {
+        Page<Actor> actorsPage = actorRepository.findByNameContainingIgnoreCase(name, pageable);
+        return actorsPage.map(this::convertToDTO);
     }
 
     // Conversion methods between Actor and ActorDTO
