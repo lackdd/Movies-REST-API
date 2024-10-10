@@ -11,8 +11,6 @@ public class GenreDTO {
     @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     private String name;
 
-    @NotNull(message = "Movies cannot be null")
-    @Size(min = 1, message = "There must be at least one movie in the genre")
     private Set<MovieSummaryDTO> movies;
 
     public Integer getId() {

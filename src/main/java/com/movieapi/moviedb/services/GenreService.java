@@ -114,6 +114,7 @@ public class GenreService {
                             .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieDTO.getId())))
                     .collect(Collectors.toSet());
             genre.setMovies(movies);
+            movies.forEach(movie -> movie.getGenres().add(genre));
         }
 
         return genre;

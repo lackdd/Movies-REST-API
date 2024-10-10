@@ -100,10 +100,10 @@ public class ActorService {
         actor.setName(actorDTO.getName());
         actor.setBirthDate(actorDTO.getBirthDate());
 
-        if (actorDTO.getMovies() != null && !actorDTO.getMovies().isEmpty()) {
-            Set<Movie> movies = actorDTO.getMovies().stream()
-                    .map(movieDTO -> movieRepository.findById(movieDTO.getId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieDTO.getId())))
+        if (actorDTO.getMovieIds() != null && !actorDTO.getMovieIds().isEmpty()) {
+            Set<Movie> movies = actorDTO.getMovieIds().stream()
+                    .map(movieId -> movieRepository.findById(movieId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId)))
                     .collect(Collectors.toSet());
             actor.setMovies(movies);
         }

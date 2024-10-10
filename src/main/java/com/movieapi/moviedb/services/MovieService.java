@@ -65,6 +65,7 @@ public class MovieService {
                                         .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + genreDTO.getId())))
                                 .collect(Collectors.toSet());
                         movie.setGenres(genres);
+                        genres.forEach(genre -> genre.getMovies().add(movie));
                     }
                     if (updatedMovieDTO.getActors() != null && !updatedMovieDTO.getActors().isEmpty()) {
                         Set<Actor> actors = updatedMovieDTO.getActors().stream()
