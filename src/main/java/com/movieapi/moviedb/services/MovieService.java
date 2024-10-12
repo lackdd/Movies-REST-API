@@ -60,6 +60,7 @@ public class MovieService {
                         movie.setDuration(updatedMovieDTO.getDuration());
                     }
 
+                    // Update genres
                     if (updatedMovieDTO.getGenreIds() != null && !updatedMovieDTO.getGenreIds().isEmpty()) {
                         Set<Genre> genres = updatedMovieDTO.getGenreIds().stream()
                                 .map(genreId -> genreRepository.findById(genreId)
@@ -68,22 +69,29 @@ public class MovieService {
                         movie.setGenres(genres);
                     }
 
+                    // Update actors: clear the existing actors and set new ones
                     if (updatedMovieDTO.getActorIds() != null && !updatedMovieDTO.getActorIds().isEmpty()) {
-                        movie.getActors().clear();
+                        // First, clear the current list of actors in the movie
+                        Set<Actor> currentActors = new HashSet<>(movie.getActors());
+                        for (Actor actor : currentActors) {
+                            actor.getMovies().remove(movie);  // Remove the movie from the actor's movie list (bidirectional)
+                        }
+                        movie.getActors().clear();  // Clear the movie's actor list
 
-                        Set<Actor> actors = updatedMovieDTO.getActorIds().stream()
+                        // Now, add the new actors from actorIds
+                        Set<Actor> newActors = updatedMovieDTO.getActorIds().stream()
                                 .map(actorId -> actorRepository.findById(actorId)
                                         .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorId)))
                                 .collect(Collectors.toSet());
-                        movie.setActors(actors);
+                        movie.setActors(newActors);
 
-                        // Maintain bidirectional relationship
-                        for (Actor actor : actors) {
-                            actor.getMovies().add(movie);
+                        // Maintain the bidirectional relationship
+                        for (Actor newActor : newActors) {
+                            newActor.getMovies().add(movie);  // Add the movie to each new actor's movie list
                         }
                     }
 
-                    return convertToDTO(movieRepository.save(movie));
+                    return convertToDTO(movieRepository.save(movie));  // Save the updated movie
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + id));
     }
@@ -131,8 +139,8 @@ public class MovieService {
 
         // Remove the actor if they are currently associated with the movie
         if (movie.getActors().contains(actor)) {
-            movie.getActors().remove(actor);  // Remove the actor from the movie's actor list
-            actor.getMovies().remove(movie);  // Optionally remove the movie from the actor's movie list to maintain bidirectional consistency
+            movie.getActors().remove(actor);
+            actor.getMovies().remove(movie);
         } else {
             throw new ResourceNotFoundException("Actor with id: " + actorId + " is not associated with movie id: " + movieId);
         }
