@@ -59,21 +59,30 @@ public class MovieService {
                     if (updatedMovieDTO.getDuration() != null) {
                         movie.setDuration(updatedMovieDTO.getDuration());
                     }
-                    if (updatedMovieDTO.getGenres() != null && !updatedMovieDTO.getGenres().isEmpty()) {
-                        Set<Genre> genres = updatedMovieDTO.getGenres().stream()
-                                .map(genreDTO -> genreRepository.findById(genreDTO.getId())
-                                        .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + genreDTO.getId())))
+
+                    if (updatedMovieDTO.getGenreIds() != null && !updatedMovieDTO.getGenreIds().isEmpty()) {
+                        Set<Genre> genres = updatedMovieDTO.getGenreIds().stream()
+                                .map(genreId -> genreRepository.findById(genreId)
+                                        .orElseThrow(() -> new ResourceNotFoundException("Genre not found with id: " + genreId)))
                                 .collect(Collectors.toSet());
                         movie.setGenres(genres);
-                        genres.forEach(genre -> genre.getMovies().add(movie));
                     }
-                    if (updatedMovieDTO.getActors() != null && !updatedMovieDTO.getActors().isEmpty()) {
-                        Set<Actor> actors = updatedMovieDTO.getActors().stream()
-                                .map(actorDTO -> actorRepository.findById(actorDTO.getId())
-                                        .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorDTO.getId())))
+
+                    if (updatedMovieDTO.getActorIds() != null && !updatedMovieDTO.getActorIds().isEmpty()) {
+                        movie.getActors().clear();
+
+                        Set<Actor> actors = updatedMovieDTO.getActorIds().stream()
+                                .map(actorId -> actorRepository.findById(actorId)
+                                        .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorId)))
                                 .collect(Collectors.toSet());
                         movie.setActors(actors);
+
+                        // Maintain bidirectional relationship
+                        for (Actor actor : actors) {
+                            actor.getMovies().add(movie);
+                        }
                     }
+
                     return convertToDTO(movieRepository.save(movie));
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + id));
@@ -145,11 +154,13 @@ public class MovieService {
         movieDTO.setReleaseYear(movie.getReleaseYear());
         movieDTO.setDuration(movie.getDuration());
 
+        // Convert Genres to GenreSummaryDTO objects (for retrieval)
         Set<GenreSummaryDTO> genreSummaries = movie.getGenres().stream()
                 .map(this::convertToGenreSummaryDTO)
                 .collect(Collectors.toSet());
         movieDTO.setGenres(genreSummaries);
 
+        // Convert Actors to ActorSummaryDTO objects (for retrieval)
         Set<ActorSummaryDTO> actorSummaries = movie.getActors().stream()
                 .map(this::convertToActorSummaryDTO)
                 .collect(Collectors.toSet());
@@ -193,7 +204,7 @@ public class MovieService {
         movie.setReleaseYear(movieDTO.getReleaseYear());
         movie.setDuration(movieDTO.getDuration());
 
-        // Handle Genres from genreIds (deserialization)
+        // Handle Genres from genreIds (for updating)
         Set<Genre> genres = new HashSet<>();
         if (movieDTO.getGenreIds() != null && !movieDTO.getGenreIds().isEmpty()) {
             genres = movieDTO.getGenreIds().stream()
@@ -203,16 +214,13 @@ public class MovieService {
         }
         movie.setGenres(genres);
 
-        // Handle Actors from actorIds (deserialization)
+        // Handle Actors from actorIds (for updating)
         Set<Actor> actors = new HashSet<>();
         if (movieDTO.getActorIds() != null && !movieDTO.getActorIds().isEmpty()) {
             actors = movieDTO.getActorIds().stream()
                     .map(actorId -> actorRepository.findById(actorId)
                             .orElseThrow(() -> new ResourceNotFoundException("Actor not found with id: " + actorId)))
                     .collect(Collectors.toSet());
-            for (Actor actor : actors) {
-                actor.getMovies().add(movie);
-            }
         }
         movie.setActors(actors);
 
