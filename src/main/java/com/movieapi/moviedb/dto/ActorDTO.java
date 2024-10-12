@@ -3,9 +3,11 @@ package com.movieapi.moviedb.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Set;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ActorDTO {
     private Integer id;
 
